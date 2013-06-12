@@ -77,12 +77,12 @@
     <Page.BottomAppBar>
         <AppBar Padding="10,0,10,0" Background="WhiteSmoke" Opened="AppBar_Opened" Closed="AppBar_Closed">
             <Grid>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                    <Button Style="{StaticResource RefreshAppBarButtonStyle}" Click="RefreshButton_Click"/>
-                </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Style="{StaticResource ViewCommentsAppBarButtonStyle}" Click="ViewCommentsPage_Click"/>
+                    <Button Style="{StaticResource RefreshAppBarButtonStyle}" Click="RefreshButton_Click"/>
                     <Button Style="{StaticResource FilterAppBarButtonStyle}" Click="FilterButton_Click"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                    <Button Style="{StaticResource ViewCommentsAppBarButtonStyle}" Click="ViewCommentsPage_Click"/>
                 </StackPanel>
             </Grid>
         </AppBar>

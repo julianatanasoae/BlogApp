@@ -291,5 +291,10 @@ namespace kraigb
         {
             await Windows.System.Launcher.LaunchUriAsync(new Uri(e.Value));
         }
+
+        private void FilterButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
