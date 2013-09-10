@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest">
-  <Identity Name="63938NuthatchProductions.KraigBrockschmidt" Publisher="CN=B6630909-91E3-4ADA-9A09-80A174B59D9F" Version="1.0.0.0" />
+  <Identity Name="63938NuthatchProductions.KraigBrockschmidt" Publisher="CN=B6630909-91E3-4ADA-9A09-80A174B59D9F" Version="1.0.0.1" />
   <Properties>
     <DisplayName>Kraig Brockschmidt</DisplayName>
     <PublisherDisplayName>Nuthatch Productions</PublisherDisplayName>

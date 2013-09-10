@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Background;
@@ -48,8 +49,15 @@ namespace kraigb
                 kraigb.Common.SuspensionManager.RegisterFrame(rootFrame, "AppFrame");
 
                 //TODO: replace the URI here with the actual address of the periodic update service
+                List<Uri> urisToPoll = new List<Uri>(5);
+                for (int i = 1; i <= 5; i++)
+                {
+                    //TODO: replace the URIs after uploading the files on the server
+                    urisToPoll.Add(new Uri("http://www.juliandev.ro/kraigb/tile_" + i + ".php"));
+                }
                 TileUpdater updater = Windows.UI.Notifications.TileUpdateManager.CreateTileUpdaterForApplication();
-                updater.StartPeriodicUpdate(new Uri("http://www.kraigbrockschmidt.com/blog/tileupdate.php"), PeriodicUpdateRecurrence.Hour);
+                updater.EnableNotificationQueue(true);
+                updater.StartPeriodicUpdateBatch(urisToPoll, PeriodicUpdateRecurrence.Hour);
 
 
                 var connectionProfile = Windows.Networking.Connectivity.NetworkInformation.GetInternetConnectionProfile();

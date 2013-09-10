@@ -91,9 +91,6 @@
                     <Button Style="{StaticResource RefreshAppBarButtonStyle}" Click="RefreshButton_Click"/>
                     <Button Style="{StaticResource FilterAppBarButtonStyle}" Click="FilterButton_Click"/>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                    <Button Style="{StaticResource ViewCommentsAppBarButtonStyle}" Click="ViewCommentsPage_Click"/>
-                </StackPanel>
             </Grid>
         </AppBar>
     </Page.BottomAppBar>
@@ -129,50 +126,125 @@
             <TextBlock x:Name="pageTitle" Grid.Column="1" Text="kraig brockschmidt" Style="{StaticResource GreenPageHeaderTextStyle}"/>
             <TextBlock x:Name="pageSubtitle" Grid.Column="2" Text="clarity › light › solutions" Style="{StaticResource PageSubheaderTextStyle}"/>
         </Grid>
-
-        <!-- Vertical scrolling item list -->
-        <ListView
-            x:Name="itemListView"
-            AutomationProperties.AutomationId="ItemsListView"
-            AutomationProperties.Name="Items"
-            TabIndex="1"
-            Grid.Row="1"
-            Margin="-10,-10,0,0"
-            Padding="120,0,0,60"
-            ItemsSource="{Binding Source={StaticResource itemsViewSource}}"
-            IsSwipeEnabled="False"
-            SelectionChanged="ItemListView_SelectionChanged"
-            ItemTemplate="{StaticResource DefaultListItemTemplate}"/>        
         
+        <SemanticZoom x:Name="semanticZoom" Grid.Row="1" Margin="120,0,0,0" Padding="0,10,0,30">
+            <SemanticZoom.ZoomedOutView>
+                <local:SemanticListViewWrapper>
+                <ListView x:Name="monthListView" SelectionMode="None" IsItemClickEnabled="True" ItemClick="monthListView_ItemClick">
+                    <ListView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapGrid Orientation="Horizontal" MaximumRowsOrColumns="2"/>
+                        </ItemsPanelTemplate>
+                    </ListView.ItemsPanel>
+                    
+                    <Border Background="{StaticResource BlockBackgroundBrush}" Width="80" Height="80">
+                        <Canvas x:Name="jan" Height="80" Width="80" Margin="0">
+                            <TextBlock Width="80" Height="40" Margin="0" FontSize="28" FontWeight="Bold" Foreground="White" Text="JAN" TextAlignment="Center" Canvas.Top="20"/>
+                        </Canvas>
+                    </Border>
+                    <Border Background="{StaticResource BlockBackgroundBrush}" Width="80" Height="80">
+                        <Canvas x:Name="feb" Height="80" Width="80" Margin="0">
+                            <TextBlock Width="80" Height="40" Margin="0" FontSize="28" FontWeight="Bold" Foreground="White" Text="FEB" TextAlignment="Center" Canvas.Top="20"/>
+                        </Canvas>
+                    </Border>
+                    <Border Background="{StaticResource BlockBackgroundBrush}" Width="80" Height="80">
+                        <Canvas x:Name="mar" Height="80" Width="80" Margin="0">
+                            <TextBlock Width="80" Height="40" Margin="0" FontSize="28" FontWeight="Bold" Foreground="White" Text="MAR" TextAlignment="Center" Canvas.Top="20"/>
+                        </Canvas>
+                    </Border>
+                    <Border Background="{StaticResource BlockBackgroundBrush}" Width="80" Height="80">
+                        <Canvas x:Name="apr" Height="80" Width="80" Margin="0">
+                            <TextBlock Width="80" Height="40" Margin="0" FontSize="28" FontWeight="Bold" Foreground="White" Text="APR" TextAlignment="Center" Canvas.Top="20"/>
+                        </Canvas>
+                    </Border>
+                    <Border Background="{StaticResource BlockBackgroundBrush}" Width="80" Height="80">
+                        <Canvas x:Name="may" Height="80" Width="80" Margin="0">
+                            <TextBlock Width="80" Height="40" Margin="0" FontSize="28" FontWeight="Bold" Foreground="White" Text="MAY" TextAlignment="Center" Canvas.Top="20"/>
+                        </Canvas>
+                    </Border>
+                    <Border Background="{StaticResource BlockBackgroundBrush}" Width="80" Height="80">
+                        <Canvas x:Name="jun" Height="80" Width="80" Margin="0">
+                            <TextBlock Width="80" Height="40" Margin="0" FontSize="28" FontWeight="Bold" Foreground="White" Text="JUN" TextAlignment="Center" Canvas.Top="20"/>
+                        </Canvas>
+                    </Border>
+                    <Border Background="{StaticResource BlockBackgroundBrush}" Width="80" Height="80">
+                        <Canvas x:Name="jul" Height="80" Width="80" Margin="0">
+                            <TextBlock Width="80" Height="40" Margin="0" FontSize="28" FontWeight="Bold" Foreground="White" Text="JUL" TextAlignment="Center" Canvas.Top="20"/>
+                        </Canvas>
+                    </Border>
+                    <Border Background="{StaticResource BlockBackgroundBrush}" Width="80" Height="80">
+                        <Canvas x:Name="aug" Height="80" Width="80" Margin="0">
+                            <TextBlock Width="80" Height="40" Margin="0" FontSize="28" FontWeight="Bold" Foreground="White" Text="AUG" TextAlignment="Center" Canvas.Top="20"/>
+                        </Canvas>
+                    </Border>
+                    <Border Background="{StaticResource BlockBackgroundBrush}" Width="80" Height="80">
+                        <Canvas x:Name="sep" Height="80" Width="80" Margin="0">
+                            <TextBlock Width="80" Height="40" Margin="0" FontSize="28" FontWeight="Bold" Foreground="White" Text="SEP" TextAlignment="Center" Canvas.Top="20"/>
+                        </Canvas>
+                    </Border>
+                    <Border Background="{StaticResource BlockBackgroundBrush}" Width="80" Height="80">
+                        <Canvas x:Name="oct" Height="80" Width="80" Margin="0">
+                            <TextBlock Width="80" Height="40" Margin="0" FontSize="28" FontWeight="Bold" Foreground="White" Text="OCT" TextAlignment="Center" Canvas.Top="20"/>
+                        </Canvas>
+                    </Border>
+                    <Border Background="{StaticResource BlockBackgroundBrush}" Width="80" Height="80">
+                        <Canvas x:Name="nov" Height="80" Width="80" Margin="0">
+                            <TextBlock Width="80" Height="40" Margin="0" FontSize="28" FontWeight="Bold" Foreground="White" Text="NOV" TextAlignment="Center" Canvas.Top="20"/>
+                        </Canvas>
+                    </Border>
+                    <Border Background="{StaticResource BlockBackgroundBrush}" Width="80" Height="80">
+                        <Canvas x:Name="dec" Height="80" Width="80" Margin="0">
+                            <TextBlock Width="80" Height="40" Margin="0" FontSize="28" FontWeight="Bold" Foreground="White" Text="DEC" TextAlignment="Center" Canvas.Top="20"/>
+                        </Canvas>
+                    </Border>
+                </ListView>
+                </local:SemanticListViewWrapper>
+            </SemanticZoom.ZoomedOutView>
+            <SemanticZoom.ZoomedInView>
+                <!-- Vertical scrolling item list -->
+                <ListView
+                    x:Name="itemListView"
+                    AutomationProperties.AutomationId="ItemsListView"
+                    AutomationProperties.Name="Items"
+                    TabIndex="1"
+                    ItemsSource="{Binding Source={StaticResource itemsViewSource}}"
+                    IsSwipeEnabled="False"
+                    SelectionChanged="ItemListView_SelectionChanged"
+                    ItemTemplate="{StaticResource DefaultListItemTemplate}"
+                    ItemContainerStyle="{StaticResource ListViewItemStyleWithoutCheckBox}"/>
+            </SemanticZoom.ZoomedInView>
+        </SemanticZoom>
+
         <!-- Details for selected item -->
-        <ScrollViewer
-            x:Name="itemDetail"
-            AutomationProperties.AutomationId="ItemDetailScrollViewer"
-            Grid.Column="1"
-            Grid.Row="1"
-            Padding="70,0,120,0"
-            DataContext="{Binding SelectedItem, ElementName=itemListView}"
-            Style="{StaticResource VerticalScrollViewerStyle}">
+                <ScrollViewer
+                    x:Name="itemDetail"
+                    AutomationProperties.AutomationId="ItemDetailScrollViewer"
+                    Grid.Column="1"
+                    Grid.Row="1"
+                    Padding="70,0,120,0"
+                    DataContext="{Binding SelectedItem, ElementName=itemListView}"
+                    Style="{StaticResource VerticalScrollViewerStyle}">
 
-            <Grid x:Name="itemDetailGrid">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
+                    <Grid x:Name="itemDetailGrid">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
 
-                <TextBlock x:Name="itemTitle" Text="{Binding title}"
-                           Style="{StaticResource GreenSubheaderTextStyle}"/>
-                <Border x:Name="contentViewBorder" BorderBrush="White" BorderThickness="0" 
-                        Grid.Row="1" Margin="0,16,0,19.429">
-                    <Grid>
-                        <WebView x:Name="contentView" NavigationFailed="ContentView_NavigationFailed" ScriptNotify="contentView_ScriptNotify" />
-                        <Rectangle x:Name="contentViewRect" />
+                        <TextBlock x:Name="itemTitle" Text="{Binding title}"
+                                   Style="{StaticResource GreenSubheaderTextStyle}"/>
+                        <Button x:Name="ViewCommentsButton" Content="View Comments" Click="ViewCommentsPage_Click" Margin="0,80,0,0"/>
+                        <Border x:Name="contentViewBorder" BorderBrush="White" BorderThickness="0" 
+                                Grid.Row="1" Margin="0,16,0,19.429">
+                            <Grid>
+                                <WebView x:Name="contentView" NavigationFailed="ContentView_NavigationFailed" ScriptNotify="contentView_ScriptNotify" />
+                                <Rectangle x:Name="contentViewRect" />
+                            </Grid>
+                        </Border>
                     </Grid>
-                </Border>
-            </Grid>
-        </ScrollViewer>
+                </ScrollViewer>
 
-        <ProgressRing x:Name="progressRing" VerticalAlignment="Center" IsActive="True" Grid.Row="1" Width="100" Height="100" Visibility="Collapsed"/>
+                <ProgressRing x:Name="progressRing" VerticalAlignment="Center" IsActive="True" Grid.Row="1" Width="100" Height="100" Visibility="Collapsed"/>
 
         <VisualStateManager.VisualStateGroups>
 

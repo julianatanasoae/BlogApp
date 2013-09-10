@@ -1,17 +1,9 @@
-﻿using Callisto.Controls;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Windows.Input;
-using Windows.ApplicationModel.Background;
-using Windows.Data.Xml.Dom;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -21,27 +13,16 @@ using Windows.UI.Xaml.Navigation;
 
 namespace kraigb
 {
-    public class postDate
-    {
-        public string year { get; set; }
-        public string month { get; set; }
-        
-        // J: I created this extra parameter so I didn't have to do another switch-case statement
-        // to determine the name of the month
-        public string month_name { get; set; }
-
-        public postDate(string _year, string _month, string _month_name)
-        {
-            year = _year;
-            month = _month;
-            month_name = _month_name;
-        }
-    }
-    public sealed partial class SplitPage : kraigb.Common.LayoutAwarePage
+    /// <summary>
+    /// A page that displays a group title, a list of items within the group, and details for
+    /// the currently selected item.
+    /// </summary>
+    public sealed partial class SplitPageFilteredByMonth : kraigb.Common.LayoutAwarePage
     {
         const string style = "<style type=\"text/css\"> p {font-family:'Segoe UI'; } h1 {font-family:'Segoe UI';} h2 {font-family:'Segoe UI';} h3 {font-family:'Segoe UI';} h4 {font-family:'Segoe UI';} blockquote {font-family: 'Segoe UI'; font-style:italic;} a:link {font-family:'Segoe UI'; } li { font-family: 'Segoe UI'; } </style> ";
+        postDate navParam;
 
-        public SplitPage()
+        public SplitPageFilteredByMonth()
         {
             this.InitializeComponent();
             ShareSourceLoad();
@@ -83,9 +64,10 @@ namespace kraigb
         /// session.  This will be null the first time a page is visited.</param>
         protected async override void LoadState(Object navigationParameter, Dictionary<String, Object> pageState)
         {
+            navParam = navigationParameter as postDate;
+            pageTitle.Text = "Posts for " + navParam.month_name + " " + navParam.year;
             ViewCommentsButton.Visibility = Visibility.Collapsed;
             progressRing.Visibility = Visibility.Visible;
-            //TODO: restore this later on this.RegisterBackgroundTask();
             Windows.UI.Xaml.Media.Animation.Storyboard sb =
                 this.FindName("PopInStoryBoard") as Windows.UI.Xaml.Media.Animation.Storyboard;
             if (sb != null) sb.Begin();
@@ -95,13 +77,15 @@ namespace kraigb
             FeedDataSource feedDataSource = (FeedDataSource)App.Current.Resources["feedDataSource"];
             if (feedDataSource != null)
             {
-                await feedDataSource.GetFeedsAsync();
+                await feedDataSource.GetFeedsAsync("date", navParam.year + navParam.month);
             }
             RootObject feedData = FeedDataSource.GetFeed();
             if (feedData != null)
             {
                 this.DefaultViewModel["Feed"] = feedData;
                 this.DefaultViewModel["Items"] = feedData.posts;
+                if (feedData.posts.Count == 0)
+                    itemTitle.Text = "There are no posts yet.";
             }
 
             if (pageState == null)
@@ -129,7 +113,9 @@ namespace kraigb
                     this.itemsViewSource.View.MoveCurrentTo(selectedItem);
                 }
             }
-            ViewCommentsButton.Visibility = Visibility.Visible;
+            if (feedData.posts.Count == 0)
+                ViewCommentsButton.Visibility = Visibility.Collapsed;
+            else ViewCommentsButton.Visibility = Visibility.Visible;
             progressRing.Visibility = Visibility.Collapsed;
         }
 
@@ -216,20 +202,8 @@ namespace kraigb
         /// <param name="e">Event data that describes how the back button was clicked.</param>
         protected override void GoBack(object sender, RoutedEventArgs e)
         {
-            if (this.UsingLogicalPageNavigation() && itemListView.SelectedItem != null)
-            {
-                // When logical page navigation is in effect and there's a selected item that
-                // item's details are currently displayed.  Clearing the selection will return to
-                // the item list.  From the user's point of view this is a logical backward
-                // navigation.
-                this.itemListView.SelectedItem = null;
-            }
-            else
-            {
-                // When logical page navigation is not in effect, or when there is no selected
-                // item, use the default back button behavior.
-                base.GoBack(sender, e);
-            }
+            DataTransferManager.GetForCurrentView().DataRequested -= new TypedEventHandler<DataTransferManager, DataRequestedEventArgs>(this.DataRequested);
+            this.Frame.Navigate(typeof(SplitPage));
         }
 
         /// <summary>
@@ -275,7 +249,7 @@ namespace kraigb
 
         private void RefreshButton_Click(object sender, RoutedEventArgs e)
         {
-            LoadState("", null);
+            LoadState(navParam, null);
         }
 
         private void ViewCommentsPage_Click(object sender, RoutedEventArgs e)
@@ -286,6 +260,12 @@ namespace kraigb
                 string itemTitle = selectedItem.title;
                 this.Frame.Navigate(typeof(CommentsPage), itemTitle);
             }
+        }
+
+
+        private void FilterButton_Click(object sender, RoutedEventArgs e)
+        {
+            //TODO: need to centralize code in SplitPage.xaml.cs into something that can be used from here
         }
 
         private void AppBar_Opened(object sender, object e)
@@ -324,209 +304,5 @@ namespace kraigb
             await Windows.System.Launcher.LaunchUriAsync(new Uri(e.Value));
         }
 
-        #region Filtering
-
-        public class NavigateToFilterTypeCommand : ICommand
-        {
-            private object sender;
-            private string type;
-            public NavigateToFilterTypeCommand(object sender, string type)
-            {
-                this.sender = sender;
-                this.type = type;
-            }
-
-            public async void Execute(object param)
-            {
-                FeedDataSource feedDataSource = (FeedDataSource)App.Current.Resources["feedDataSource"];
-                if (feedDataSource == null)
-                {
-                    return;
-                }
-            
-                //Shouldn't need this now, but I'll leave it here
-                ProgressRing filter_ring = new ProgressRing();
-                filter_ring.IsActive = true;
-                Flyout flyout = new Flyout();
-                flyout.PlacementTarget = sender as UIElement;
-                flyout.Placement = PlacementMode.Top;
-                flyout.HostMargin = new Thickness(0);
-                Border b = new Border();
-                b.Width = 20;
-                b.Height = 20;
-                b.Child = filter_ring;
-                flyout.Content = b;
-                flyout.IsOpen = true;
-
-                Menu menu = new Menu();
-                menu.MaxHeight = 300;
-
-                switch (type)
-                {
-                    case "category":
-                        foreach (Category item in feedDataSource.CategoryList.categories)
-                            {
-                                ToggleMenuItem menuItem = new ToggleMenuItem();
-                                menuItem.Text = item.title;
-                                menuItem.Command = new MenuCategoryCommand(item.slug, item.title);
-                                menu.Items.Add(menuItem);
-                            }
-                        break;
-
-                    case "tag":
-                    default:
-                        foreach (Tag item in feedDataSource.TagList.tags)
-                        {
-                            ToggleMenuItem menuItem = new ToggleMenuItem();
-                            menuItem.Text = item.title;
-                            menuItem.Command = new MenuTagCommand(item.slug, item.title);
-                            menu.Items.Add(menuItem);
-                        }
-                        break;
-                }
-
-                flyout.Content = menu;
-            }
-
-            public bool CanExecute(object param)
-            {
-                return true;
-            }
-
-            public event EventHandler CanExecuteChanged;
-        }
-
-        public class MenuTagCommand : ICommand
-        {
-            private string myTag;
-            private string tagTitle;
-            public MenuTagCommand(string myTag, string tagTitle)
-            {
-                this.myTag = myTag;
-                this.tagTitle = tagTitle;
-            }
-
-            public void Execute(object param)
-            {
-                App.page_title = tagTitle;
-                var frame = new Frame();
-                frame.Navigate(typeof(SplitPageFilteredByTag), myTag);
-                Window.Current.Content = frame;
-            }
-
-            public bool CanExecute(object param)
-            {
-                return true;
-            }
-
-            public event EventHandler CanExecuteChanged;
-        }
-
-        public class MenuCategoryCommand : ICommand
-        {
-            private string myCategory;
-            private string categoryTitle;
-            public MenuCategoryCommand(string myCategory, string categoryTitle)
-            {
-                this.myCategory = myCategory;
-                this.categoryTitle = categoryTitle;
-            }
-
-            public void Execute(object param)
-            {
-                App.page_title = categoryTitle;
-                var frame = new Frame();
-                frame.Navigate(typeof(SplitPageFilteredByCategory), myCategory);
-                Window.Current.Content = frame;
-            }
-
-            public bool CanExecute(object param)
-            {
-                return true;
-            }
-
-            public event EventHandler CanExecuteChanged;
-        }
-
-        private void FilterButton_Click(object sender, RoutedEventArgs e)
-        {
-            DataTransferManager.GetForCurrentView().DataRequested -= new TypedEventHandler<DataTransferManager, DataRequestedEventArgs>(this.DataRequested);
-            Flyout flyout = new Flyout();
-            flyout.PlacementTarget = sender as UIElement;
-            flyout.Placement = PlacementMode.Top;
-            flyout.HostMargin = new Thickness(0);
-
-            Menu menu = new Menu();
-
-            ToggleMenuItem filterByTag_menuItem = new ToggleMenuItem();
-            filterByTag_menuItem.Text = "by Tag";
-            filterByTag_menuItem.Command = new NavigateToFilterTypeCommand(sender, "tag");
-            menu.Items.Add(filterByTag_menuItem);
-
-            ToggleMenuItem filterByCategory_menuItem = new ToggleMenuItem();
-            filterByCategory_menuItem.Text = "by Category";
-            filterByCategory_menuItem.Command = new NavigateToFilterTypeCommand(sender, "category");
-            menu.Items.Add(filterByCategory_menuItem);
-
-            menu.MaxHeight = 300;
-
-            flyout.Content = menu;
-            flyout.IsOpen = true;
-
-            UpdateLayout();
-        }
-
-        #endregion
-
-        private void monthListView_ItemClick(object sender, ItemClickEventArgs e)
-        {
-            var border = e.ClickedItem as Border;
-            var selected_item = (Canvas)border.Child;
-            var month_name = selected_item.Name;
-
-
-            // J: As I explained above, the extra parameter is saving me from doing another switch-case statement
-            switch (month_name)
-            {
-                case "jan":
-                    this.Frame.Navigate(typeof(SplitPageFilteredByMonth), new postDate("2013", "01", "January"));
-                    break;
-                case "feb":
-                    this.Frame.Navigate(typeof(SplitPageFilteredByMonth), new postDate("2013", "02", "February"));
-                    break;
-                case "mar":
-                    this.Frame.Navigate(typeof(SplitPageFilteredByMonth), new postDate("2013", "03", "March"));
-                    break;
-                case "apr":
-                    this.Frame.Navigate(typeof(SplitPageFilteredByMonth), new postDate("2013", "04", "April"));
-                    break;
-                case "may":
-                    this.Frame.Navigate(typeof(SplitPageFilteredByMonth), new postDate("2013", "05", "May"));
-                    break;
-                case "jun":
-                    this.Frame.Navigate(typeof(SplitPageFilteredByMonth), new postDate("2013", "06", "June"));
-                    break;
-                case "jul":
-                    this.Frame.Navigate(typeof(SplitPageFilteredByMonth), new postDate("2013", "07", "July"));
-                    break;
-                case "aug":
-                    this.Frame.Navigate(typeof(SplitPageFilteredByMonth), new postDate("2013", "08", "August"));
-                    break;
-                case "sep":
-                    this.Frame.Navigate(typeof(SplitPageFilteredByMonth), new postDate("2013", "09", "September"));
-                    break;
-                case "oct":
-                    this.Frame.Navigate(typeof(SplitPageFilteredByMonth), new postDate("2013", "10", "October"));
-                    break;
-                case "nov":
-                    this.Frame.Navigate(typeof(SplitPageFilteredByMonth), new postDate("2013", "11", "November"));
-                    break;
-                case "dec":
-                    this.Frame.Navigate(typeof(SplitPageFilteredByMonth), new postDate("2013", "12", "December"));
-                    break;
-                default:
-                    break;
-            }
-        }
     }
 }

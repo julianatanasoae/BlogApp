@@ -45,9 +45,9 @@ namespace kraigb
             }
         }
 
-        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
         {
-            base.OnNavigatedFrom(e);
+            base.OnNavigatingFrom(e);
             DataTransferManager.GetForCurrentView().DataRequested -= new TypedEventHandler<DataTransferManager, DataRequestedEventArgs>(this.DataRequested);
         }
 
@@ -66,6 +66,7 @@ namespace kraigb
         {
             pageTitle.Text = "Category archives \"" + App.page_title + "\"";
             navParam = navigationParameter.ToString();
+            ViewCommentsButton.Visibility = Visibility.Collapsed;
             progressRing.Visibility = Visibility.Visible;
             Windows.UI.Xaml.Media.Animation.Storyboard sb =
                 this.FindName("PopInStoryBoard") as Windows.UI.Xaml.Media.Animation.Storyboard;
@@ -110,6 +111,7 @@ namespace kraigb
                     this.itemsViewSource.View.MoveCurrentTo(selectedItem);
                 }
             }
+            ViewCommentsButton.Visibility = Visibility.Visible;
             progressRing.Visibility = Visibility.Collapsed;
         }
 

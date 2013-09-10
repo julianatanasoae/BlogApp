@@ -164,19 +164,20 @@ namespace kraigb
                 RootObject postList = await JsonConvert.DeserializeObjectAsync<RootObject>(response);
                 RootObject feedData = new RootObject();
 
+                
                 //Update the tile with the most recent posts
                 //For the moment, just do the first one.
-                Boolean tileUpdated = false;
+                //Boolean tileUpdated = false;
 
                 foreach (Post post in postList.posts)
                 {
                     if (post.title != null)
                     {
-                        if (!tileUpdated)
+                        /*if (!tileUpdated)                     //J: Do we need this anymore? Already defined in app.xaml.cs
                         {
                             TileUpdater updater = Windows.UI.Notifications.TileUpdateManager.CreateTileUpdaterForApplication();
                             updater.StartPeriodicUpdate(new Uri("http://www.kraigbrockschmidt.com/blog/tileupdate.php"), PeriodicUpdateRecurrence.Hour);
-                        }
+                        }*/
 
                         post.title = post.title.Replace("&#8220;", "\"");
                         post.title = post.title.Replace("&#8221;", "\"");
@@ -258,6 +259,8 @@ namespace kraigb
                 post_count_uri = new Uri(App.BLOG_URL + "?json=get_category_posts&include=id&slug=" + index);
             else if (filter == "tag")
                 post_count_uri = new Uri(App.BLOG_URL + "?json=get_tag_posts&include=id&slug=" + index);
+            else if (filter == "date")
+                post_count_uri = new Uri(App.BLOG_URL + "?json=get_date_posts&include=id&date=" + index);
             else
                 post_count_uri = new Uri(App.BLOG_URL + "?json=get_search_results&include=id&search=" + index);
 
@@ -279,6 +282,8 @@ namespace kraigb
                 feedUri = new Uri(App.BLOG_URL + "?json=get_category_posts&slug=" + index + "&count=" + post_count);
             else if (filter == "tag")
                 feedUri = new Uri(App.BLOG_URL + "?json=get_tag_posts&slug=" + index + "&count=" + post_count);
+            else if (filter == "date")
+                feedUri = new Uri(App.BLOG_URL + "?json=get_date_posts&date=" + index + "&count=" + post_count);
             else
                 feedUri = new Uri(App.BLOG_URL + "?json=get_search_results&search=" + index + "&count=" + post_count);
 

@@ -120,11 +120,15 @@
     <Compile Include="SearchResults.xaml.cs">
       <DependentUpon>SearchResults.xaml</DependentUpon>
     </Compile>
+    <Compile Include="SemanticListViewWrapper.cs" />
     <Compile Include="SplitPage.xaml.cs">
       <DependentUpon>SplitPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="SplitPageFilteredByCategory.xaml.cs">
       <DependentUpon>SplitPageFilteredByCategory.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="SplitPageFilteredByMonth.xaml.cs">
+      <DependentUpon>SplitPageFilteredByMonth.xaml</DependentUpon>
     </Compile>
     <Compile Include="SplitPageFilteredByTag.xaml.cs">
       <DependentUpon>SplitPageFilteredByTag.xaml</DependentUpon>
@@ -188,6 +192,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="SplitPageFilteredByCategory.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="SplitPageFilteredByMonth.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -282,7 +282,7 @@ limitations under the License.-->
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="local:Menu">
-                    <ListView x:Name="ItemList" TabNavigation="Cycle" Margin="0,5,0,5">
+                    <ListView x:Name="ItemList" TabNavigation="Cycle" Margin="0,5,0,5" SelectionMode="None">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
